@@ -41,10 +41,10 @@ defmodule PokerOpdrachtTest do
   end
 
   test "untie pairs" do
-    {black, white} = {["2H", "2D", "5S", "5C", "9D"], ["9C", "9H", "3S", "3D", "5H"]}
+    {black, white} = {["2H", "2D", "5S", "5C", "9D"], ["8C", "8H", "3S", "3D", "5H"]}
     {black2, white2} = {["3H", "3D", "5S", "5C", "8D"], ["3C", "3H", "5S", "5D", "13H"]}
     {black3, white3} = {["3H", "3D", "5S", "5C", "7D"], ["3C", "3H", "5S", "5D", "7H"]}
-    assert Ranking.verify_winner(black, white) == {:white, {:high_card, 9}}
+    assert Ranking.verify_winner(black, white) == {:white, {:high_card, 8}}
     assert Ranking.verify_winner(black2, white2) == {:white, {:high_card, 13}}
     assert Ranking.verify_winner(black3, white3) == :tie
   end
