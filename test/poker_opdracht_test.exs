@@ -83,4 +83,9 @@ defmodule PokerOpdrachtTest do
     assert Ranking.verify_winner(black3, white3) == :tie
   end
 
+  test "verify_winner - rodrigo examples" do
+    {black, white} = "4C 4H 7C 14S 7H 9H 10S 10D 10C 10C" |> PokerOpdracht.parse_inputs
+    assert Ranking.verify_winner(black, white) == {:white, :four_of_a_kind}
+  end
+
 end

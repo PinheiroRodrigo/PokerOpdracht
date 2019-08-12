@@ -3,6 +3,21 @@ defmodule PokerOpdracht do
   Documentation for PokerOpdracht.
   """
 
+  # TODO: remove
+  def find_straight_flush(count \\ 0) do
+    {black, white} = hands()
+    result =
+      {black, white}
+      |> Ranking.verify_winner
+    set = if result != :tie, do: elem(result, 1)
+    if set == :straight_flush do
+      IO.inspect count
+      IO.inspect({black, white})
+    else
+      find_straight_flush(count + 1)
+    end
+  end
+
   def play do
     black = IO.gets("Black: ") |> String.trim
     white = IO.gets("White: ") |> String.trim
@@ -28,7 +43,7 @@ defmodule PokerOpdracht do
   end
 
   def deck do
-    card_values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "T", "J", "Q", "K", "A"]
+    card_values = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
     suits = ["C", "D", "H", "S"]
     Enum.map(suits, fn suit ->
       for value <- card_values, do: value <> suit <> " "
