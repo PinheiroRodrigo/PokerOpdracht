@@ -26,6 +26,7 @@ defmodule PokerOpdracht do
     white = IO.gets("White: ") |> String.trim
     parse_inputs(black <> " " <> white)
     |> Ranking.verify_winner
+    |> pretty_output
   end
 
   @doc """
@@ -44,28 +45,25 @@ defmodule PokerOpdracht do
   """
 
   def play_random_hands do
-    {black, white} = hands()
-    IO.puts("Black: #{inspect black}")
-    IO.puts("White: #{inspect white}")
+    {black, white} = random_hands()
+    IO.puts("Black: #{inspect black}\n")
+    IO.puts("White: #{inspect white}\n")
     {black, white}
     |> Ranking.verify_winner
+    |> pretty_output
   end
 
-  def hands do
+  defp random_hands do
     deck()
     |> Enum.shuffle
     |> Enum.take_random(10)
-    |> List.to_string
-    |> String.trim
-    |> parse_inputs
+    |> Enum.split(5)
   end
 
-  def deck do
+  defp deck do
     card_values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14"]
-    suits = ["C", "D", "H", "S"]
-    Enum.map(suits, fn suit ->
-      for value <- card_values, do: value <> suit
-    end)
+    ["C", "D", "H", "S"]
+    |> Enum.map(&(for value <- card_values, do: value <> &1))
     |> :lists.concat
   end
 
@@ -82,14 +80,26 @@ defmodule PokerOpdracht do
     end
   end
 
-  # TODO: regex
-  def letter_to_values(string) do
-    string
-    |> String.replace("T", "10")
-    |> String.replace("J", "11")
-    |> String.replace("Q", "12")
-    |> String.replace("K", "13")
-    |> String.replace("A", "14")
+  defp letter_to_values(string) do
+    ~r/(J|Q|K|A)/
+    |> Regex.replace(string, fn(_, x) ->
+      case x do
+        "J" -> "11"
+        "Q" -> "12"
+        "K" -> "13"
+        "A" -> "14"
+      end
+    end)
   end
+
+  def pretty_output(:tie), do: IO.puts("Tie")
+  def pretty_output({winner, result}), do: IO.puts("#{winner} wins - #{parse_output(result)}")
+
+  def parse_output({:high_card, 14}), do: "high card: Ace"
+  def parse_output({:high_card, 13}), do: "high card: King"
+  def parse_output({:high_card, 12}), do: "high card: Queen"
+  def parse_output({:high_card, 11}), do: "high card: Jack"
+  def parse_output({:high_card, value}), do: "high card: #{value}"
+  def parse_output(result), do: Atom.to_string(result) |> String.replace("_", " ")
 
 end

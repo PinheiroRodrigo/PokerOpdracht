@@ -11,20 +11,20 @@ defmodule Ranking do
     end
   end
 
-  def verify_hand(hand) do
+  defp verify_hand(hand) do
     num_eq_suits = number_of_equal_suits(hand)
-    highest_consec_group = highest_consecutive_group(hand)
+    biggest_consec_group = biggest_consecutive_group(hand)
     num_eq_vals = number_of_equal_values(hand)
-    case {num_eq_suits, highest_consec_group, num_eq_vals} do
-      {5, 5, _} -> {:straight_flush, 9, hand}
-      {_, _, {4, _}} -> {:four_of_a_kind, 8, hand}
-      {_, _, {3, 2}} -> {:full_house, 7, hand}
-      {5, _, _} -> {:flush, 6, hand}
-      {_, 5, _} -> {:straight, 5, hand}
+    case {num_eq_suits, biggest_consec_group, num_eq_vals} do
+      {5, 5,      _} -> {:straight_flush,  9, hand}
+      {_, _, {4, _}} -> {:four_of_a_kind,  8, hand}
+      {_, _, {3, 2}} -> {:full_house,      7, hand}
+      {5, _,      _} -> {:flush,           6, hand}
+      {_, 5,      _} -> {:straight,        5, hand}
       {_, _, {3, _}} -> {:three_of_a_kind, 4, hand}
-      {_, _, {2, 2}} -> {:two_pairs, 3, hand}
-      {_, _, {2, _}} -> {:pair, 2, hand}
-      _ -> {:high_card, 1, hand}
+      {_, _, {2, 2}} -> {:two_pairs,       3, hand}
+      {_, _, {2, _}} -> {:pair,            2, hand}
+      _              -> {:high_card,       1, hand}
     end
   end
 
@@ -77,7 +77,7 @@ defmodule Ranking do
 
   def highest_card(hand), do: hand |> Enum.map(&(&1 |> card_value)) |> Enum.max
 
-  def card_value(card), do: card |> Integer.parse |> elem(0)
+  defp card_value(card), do: card |> Integer.parse |> elem(0)
 
   def number_of_equal_suits(hand) do
     hand
@@ -90,20 +90,20 @@ defmodule Ranking do
   def number_of_equal_values(hand) do
     equal_values =
       hand
-      |> Enum.group_by(&Ranking.card_value/1)
+      |> Enum.group_by(&card_value/1)
       |> Enum.map(fn {_key, value_list} -> value_list |> length end)
     highest = Enum.max(equal_values)
     second_highest = equal_values |> List.delete(highest) |> Enum.max
     {highest, second_highest}
   end
 
-  def highest_consecutive_group(hand) do
+  def biggest_consecutive_group(hand) do
     hand
     |> Enum.map(&(&1 |> card_value))
     |> Enum.sort
     |> group_consecutives
-    |> Enum.map(&(&1 |> length))
-    |> List.first
+    |> Enum.max_by(&length/1)
+    |> length
   end
 
   defp group_consecutives([head | tail]), do: group_consecutives(tail, [[head]])
