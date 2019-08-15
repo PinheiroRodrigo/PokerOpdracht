@@ -3,8 +3,8 @@ defmodule PokerOpdrachtTest do
   doctest PokerOpdracht
 
   test "parse input correctly" do
-    result = PokerOpdracht.parse_inputs("TD JH QC KS AH 3D 7H 6C 3S 2H")
-    assert result == {["10D", "11H", "12C", "13S", "14H"], ["3D", "7H", "6C", "3S", "2H"]}
+    result = PokerOpdracht.parse_inputs("2S 3S 4S 5S 6S 10D JH QC KS AD")
+    assert result == {["2S", "3S", "4S", "5S", "6S"], ["10D", "11H", "12C", "13S", "14D"]}
   end
 
   test "number of equal values" do
@@ -22,9 +22,9 @@ defmodule PokerOpdrachtTest do
     two_consec_groups = ["2S", "3C", "6D", "7C", "8H"]
     straight = ["2S", "3C", "4D", "5C", "6H"]
 
-    assert Ranking.number_of_consecutive_values(one_consec) == 1
-    assert Ranking.number_of_consecutive_values(two_consec_groups) == 3
-    assert Ranking.number_of_consecutive_values(straight) == 5
+    assert Ranking.highest_consecutive_group(one_consec) == 1
+    assert Ranking.highest_consecutive_group(two_consec_groups) == 3
+    assert Ranking.highest_consecutive_group(straight) == 5
   end
 
   test "untie by high card" do
@@ -50,15 +50,15 @@ defmodule PokerOpdrachtTest do
   end
 
   test "verify hand" do
-    straight_flush = ["2S", "3S", "4S", "5S", "6S"]
-    four_of_a_kind = ["2S", "2C", "2D", "2H", "6S"]
-    full_house = ["2S", "2C", "6C", "6D", "6S"]
-    flush = ["2S", "3S", "8S", "5S", "10S"]
-    straight = ["2C", "3D", "4H", "5C", "6S"]
-    three_of_a_kind = ["9S", "9C", "9D", "5H", "6S"]
-    two_pairs = ["2S", "2C", "4S", "4H", "6S"]
-    pair = ["2S", "2C", "9S", "5H", "6D"]
-    high_card = ["2C", "5D", "8H", "10S", "11D"]
+    straight_flush = get_set(:straight_flush)
+    four_of_a_kind = get_set(:four_of_a_kind)
+    full_house = get_set(:full_house)
+    flush = get_set(:flush)
+    straight = get_set(:straight)
+    three_of_a_kind = get_set(:three_of_a_kind)
+    two_pairs = get_set(:two_pairs)
+    pair = get_set(:pair)
+    high_card = get_set(:high_card)
 
     assert Ranking.verify_hand(straight_flush) == {:straight_flush, 9, straight_flush}
     assert Ranking.verify_hand(four_of_a_kind) == {:four_of_a_kind, 8, four_of_a_kind}
@@ -84,8 +84,37 @@ defmodule PokerOpdrachtTest do
   end
 
   test "verify_winner - rodrigo examples" do
-    {black, white} = "4C 4H 7C 14S 7H 9H 10S 10D 10C 10C" |> PokerOpdracht.parse_inputs
-    assert Ranking.verify_winner(black, white) == {:white, :four_of_a_kind}
+    straight_flush = get_set(:straight_flush)
+    four_of_a_kind = get_set(:four_of_a_kind)
+    full_house = get_set(:full_house)
+    flush = get_set(:flush)
+    straight = get_set(:straight)
+    three_of_a_kind = get_set(:three_of_a_kind)
+    two_pairs = get_set(:two_pairs)
+    pair = get_set(:pair)
+    high_card = get_set(:high_card)
+
+
+    assert Ranking.verify_winner(straight_flush, four_of_a_kind) == {:black, :straight_flush}
+    assert Ranking.verify_winner(four_of_a_kind, full_house) == {:black, :four_of_a_kind}
+    assert Ranking.verify_winner(full_house, flush) == {:black, :full_house}
+    assert Ranking.verify_winner(flush, straight) == {:black, :flush}
+    assert Ranking.verify_winner(straight, three_of_a_kind) == {:black, :straight}
+    assert Ranking.verify_winner(three_of_a_kind, two_pairs) == {:black, :three_of_a_kind}
+    assert Ranking.verify_winner(two_pairs, pair) == {:black, :two_pairs}
+    assert Ranking.verify_winner(pair, high_card) == {:black, :pair}
+    assert Ranking.verify_winner(high_card, high_card) == :tie
   end
+
+  def get_set(:straight_flush), do: ["2S", "3S", "4S", "5S", "6S"]
+  def get_set(:four_of_a_kind), do: ["2S", "2C", "2D", "2H", "6S"]
+  def get_set(:full_house), do: ["2S", "2C", "6C", "6D", "6S"]
+  def get_set(:flush), do: ["2S", "3S", "8S", "5S", "10S"]
+  def get_set(:straight), do: ["2C", "3D", "4H", "5C", "6S"]
+  def get_set(:three_of_a_kind), do: ["9S", "9C", "9D", "5H", "6S"]
+  def get_set(:two_pairs), do: ["2S", "2C", "4S", "4H", "6S"]
+  def get_set(:pair), do: ["2S", "2C", "9S", "5H", "6D"]
+  def get_set(:high_card), do: ["2C", "5D", "8H", "10S", "11D"]
+
 
 end

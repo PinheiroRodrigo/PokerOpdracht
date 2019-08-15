@@ -1,7 +1,5 @@
 defmodule Ranking do
 
-  # Rankings
-
   def verify_winner({black, white}), do: verify_winner(black, white)
   def verify_winner(black, white) do
     {b_set, b_points, b_hand} = verify_hand(black)
@@ -15,9 +13,9 @@ defmodule Ranking do
 
   def verify_hand(hand) do
     num_eq_suits = number_of_equal_suits(hand)
-    num_consec_vals = number_of_consecutive_values(hand)
+    highest_consec_group = highest_consecutive_group(hand)
     num_eq_vals = number_of_equal_values(hand)
-    case {num_eq_suits, num_consec_vals, num_eq_vals} do
+    case {num_eq_suits, highest_consec_group, num_eq_vals} do
       {5, 5, _} -> {:straight_flush, 9, hand}
       {_, _, {4, _}} -> {:four_of_a_kind, 8, hand}
       {_, _, {3, 2}} -> {:full_house, 7, hand}
@@ -56,8 +54,8 @@ defmodule Ranking do
 
   def untie_pairs([], []), do: :tie
   def untie_pairs(black, white) do
-    {b_high, _} = black |> unique_set_highest
-    {w_high, _} = white |> unique_set_highest
+    {b_high, _} = black |> highest_appearance_and_value
+    {w_high, _} = white |> highest_appearance_and_value
     cond do
       b_high > w_high -> {:black, {:high_card, b_high}}
       w_high > b_high -> {:white, {:high_card, w_high}}
@@ -66,8 +64,8 @@ defmodule Ranking do
   end
 
   def untie_unique_sets(black, white) do
-    {b_high, _} = black |> unique_set_highest
-    {w_high, _} = white |> unique_set_highest
+    {b_high, _} = black |> highest_appearance_and_value
+    {w_high, _} = white |> highest_appearance_and_value
     if b_high > w_high do
       {:black, {:high_card, b_high}}
     else
@@ -99,7 +97,7 @@ defmodule Ranking do
     {highest, second_highest}
   end
 
-  def number_of_consecutive_values(hand) do
+  def highest_consecutive_group(hand) do
     hand
     |> Enum.map(&(&1 |> card_value))
     |> Enum.sort
@@ -119,8 +117,8 @@ defmodule Ranking do
     end
   end
 
-  # unique_set_highest gets the card with most appearances, and then by highest value
-  defp unique_set_highest(hand) do
+  # get the card by most appearances, and then by highest value
+  defp highest_appearance_and_value(hand) do
     hand
     |> Enum.uniq
     |> Enum.reduce({0, 0}, fn(card_value, {high, count}) ->
