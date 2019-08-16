@@ -4,20 +4,20 @@ defmodule PokerOpdrachtTest do
 
   setup_all do
     [
-      straight_flush: ["2S", "3S", "4S", "5S", "6S"],
-      four_of_a_kind: ["2S", "2C", "2D", "2H", "6S"],
-      full_house: ["2S", "2C", "6C", "6D", "6S"],
-      full_house_lower: ["9C", "9H", "3S", "3D", "3H"],
-      flush: ["2S", "3S", "8S", "5S", "10S"],
-      straight: ["2C", "3D", "4H", "5C", "6S"],
-      three_of_a_kind: ["9S", "9C", "9D", "5H", "6S"],
-      two_pairs: ["8C", "8H", "3S", "3D", "5H"],
-      two_pairs_lower: ["2H", "2D", "5S", "5C", "9D"],
-      two_equal_pairs_lower: ["2H", "2D", "5S", "5C", "8D"],
-      pair: ["2S", "2C", "9S", "5H", "6D"],
-      high_card: ["2C", "5D", "8H", "10S", "11D"],
-      high_card_lower: ["2C", "3H", "8S", "10S", "11H"],
-      four_equal_suits: ["2C", "3C", "8C", "9C", "5S"]
+      straight_flush:        [{2, :spades}, {3, :spades},   {4, :spades},   {5, :spades},   {6, :spades}],
+      four_of_a_kind:        [{2, :spades}, {2, :clubs},    {2, :diamonds}, {2, :hearts},   {6, :spades}],
+      full_house:            [{2, :spades}, {2, :clubs},    {6, :clubs},    {6, :diamonds}, {6, :spades}],
+      full_house_lower:      [{9, :clubs},  {9, :hearts},   {3, :spades},   {3, :diamonds}, {3, :hearts}],
+      flush:                 [{2, :spades}, {3, :spades},   {8, :spades},   {5, :spades},   {10, :spades}],
+      straight:              [{2, :clubs},  {3, :diamonds}, {4, :hearts},   {5, :clubs},    {6, :spades}],
+      three_of_a_kind:       [{9, :spades}, {9, :clubs},    {9, :diamonds}, {5, :hearts},   {6, :spades}],
+      two_pairs:             [{8, :clubs},  {8, :hearts},   {3, :spades},   {3, :diamonds}, {5, :hearts}],
+      two_pairs_lower:       [{2, :hearts}, {2, :diamonds}, {5, :spades},   {5, :clubs},    {9, :diamonds}],
+      two_equal_pairs_lower: [{2, :hearts}, {2, :diamonds}, {5, :spades},   {5, :clubs},    {8, :diamonds}],
+      pair:                  [{2, :spades}, {2, :clubs},    {9, :spades},   {5, :hearts},   {6, :diamonds}],
+      high_card:             [{2, :clubs},  {5, :diamonds}, {8, :hearts},   {10, :spades},  {11, :diamonds}],
+      high_card_lower:       [{2, :clubs},  {3, :hearts},   {8, :spades},   {10, :spades},  {11, :hearts}],
+      four_equal_suits:      [{2, :clubs},  {3, :clubs},    {8, :clubs},    {9, :clubs},    {5, :spades}]
     ]
   end
 
@@ -45,15 +45,15 @@ defmodule PokerOpdrachtTest do
   end
 
   test "verify winner - betty examples" do
-    {black, white} = "2H 3D 5S 9C KD 2C 3H 4S 8C AH" |> PokerOpdracht.parse_inputs
-    {black1, white1} = "2H 4S 4C 3D 4H 2S 8S AS QS 3S" |> PokerOpdracht.parse_inputs
-    {black2, white2} = "2H 3D 5S 9C KD 2C 3H 4S 8C KH" |> PokerOpdracht.parse_inputs
-    {black3, white3} = "2H 3D 5S 9C KD 2D 3H 5C 9S KH" |> PokerOpdracht.parse_inputs
+    example1 = "Black: 2H 3D 5S 9C KD White: 2C 3H 4S 8C AH"
+    example2 = "Black: 2H 4S 4C 3D 4H White: 2S 8S AS QS 3S"
+    example3 = "Black: 2H 3D 5S 9C KD White: 2C 3H 4S 8C KH"
+    example4 = "Black: 2H 3D 5S 9C KD White: 2D 3H 5C 9S KH"
 
-    assert Ranking.verify_winner(black, white) == {:white, {:high_card, 14}}
-    assert Ranking.verify_winner(black1, white1) == {:white, :flush}
-    assert Ranking.verify_winner(black2, white2) == {:black, {:high_card, 9}}
-    assert Ranking.verify_winner(black3, white3) == :tie
+    assert PokerOpdracht.play(example1) == "white wins - high card: Ace"
+    assert PokerOpdracht.play(example2) == "white wins - flush"
+    assert PokerOpdracht.play(example3) == "black wins - high card: 9"
+    assert PokerOpdracht.play(example4) == "Tie"
   end
 
   ## Unties
@@ -68,12 +68,15 @@ defmodule PokerOpdrachtTest do
 
   test "untie unique set", sets do
     {black, white} = {sets[:full_house], sets[:full_house_lower]}
+
     assert Ranking.verify_winner(black, white) == {:black, {:high_card, 6}}
   end
 
   test "untie pairs", sets do
     {black, white} = {sets[:two_pairs], sets[:two_pairs_lower]}
+    # two equal pairs, last white card has a lower value
     {black2, white2} = {sets[:two_pairs_lower], sets[:two_equal_pairs_lower]}
+
     assert Ranking.verify_winner(black, white) == {:black, {:high_card, 8}}
     assert Ranking.verify_winner(black2, white2) == {:black, {:high_card, 9}}
   end
@@ -81,8 +84,10 @@ defmodule PokerOpdrachtTest do
   ## Validations
 
   test "parse input correctly" do
-    result = PokerOpdracht.parse_inputs("2S 3S 4S 5S 6S 10D JH QC KS AD")
-    assert result == {["2S", "3S", "4S", "5S", "6S"], ["10D", "11H", "12C", "13S", "14D"]}
+    black = " 2S 3S 4S 5S 6S"
+    white = " TD JH QC KS AD"
+    result = {PokerOpdracht.parse_hand(black), PokerOpdracht.parse_hand(white)}
+    assert result == {[{2, :spades}, {3, :spades}, {4, :spades}, {5, :spades}, {6, :spades}], [{10, :diamonds}, {11, :hearts}, {12, :clubs}, {13, :spades}, {14, :diamonds}]}
   end
 
   test "number of equal suits", sets do
@@ -97,8 +102,8 @@ defmodule PokerOpdrachtTest do
   end
 
   test "highest consecutive group", sets do
-    one_consec = ["2S", "5C", "8D", "10C", "12H"]
-    two_consec_groups = ["2S", "3C", "6D", "7C", "8H"]
+    one_consec = [{2, :spades}, {5, :clubs}, {8, :diamonds}, {10, :clubs}, {12, :hearts}]
+    two_consec_groups = [{2, :spades}, {3, :clubs}, {6, :diamonds}, {7, :clubs}, {8, :hearts}]
     straight = sets[:straight]
 
     assert Ranking.biggest_consecutive_group(one_consec) == 1
