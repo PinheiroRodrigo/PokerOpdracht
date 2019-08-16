@@ -16,8 +16,9 @@ defmodule PokerOpdracht do
 
 
   """
+  @spec play(String.t) :: String.t
   def play(<<"Black:", black_hand :: binary-size(15), " White:", white_hand :: binary-size(15)>>) do
-    {:black, parse_hand(black_hand), :white, parse_hand(white_hand)}
+    {parse_hand(black_hand), parse_hand(white_hand)}
     |> Ranking.verify_winner
     |> pretty_output
   end
@@ -30,11 +31,12 @@ defmodule PokerOpdracht do
     {black_hand, white_hand} = random_hands()
     IO.puts("Black:#{black_hand}\n")
     IO.puts("White:#{white_hand}\n")
-    {:black, parse_hand(black_hand), :white, parse_hand(white_hand)}
+    {parse_hand(black_hand), parse_hand(white_hand)}
     |> Ranking.verify_winner
     |> pretty_output
   end
 
+  @spec parse_hand(String.t) :: String.t
   def parse_hand(""), do: []
   def parse_hand(<<" ", card :: binary-size(2), rest :: binary()>>) do
     [parse_card(card)] ++ parse_hand(rest)
@@ -72,14 +74,14 @@ defmodule PokerOpdracht do
     |> :lists.concat
   end
 
-  def pretty_output(:tie), do: "Tie"
-  def pretty_output({winner, result}), do: "#{winner} wins - #{parse_output(result)}"
+  defp pretty_output(:tie), do: "Tie"
+  defp pretty_output({winner, result}), do: "#{winner} wins - #{parse_output(result)}"
 
-  def parse_output({:high_card, 14}), do: "high card: Ace"
-  def parse_output({:high_card, 13}), do: "high card: King"
-  def parse_output({:high_card, 12}), do: "high card: Queen"
-  def parse_output({:high_card, 11}), do: "high card: Jack"
-  def parse_output({:high_card, value}), do: "high card: #{value}"
-  def parse_output(result), do: Atom.to_string(result) |> String.replace("_", " ")
+  defp parse_output({:high_card, 14}), do: "high card: Ace"
+  defp parse_output({:high_card, 13}), do: "high card: King"
+  defp parse_output({:high_card, 12}), do: "high card: Queen"
+  defp parse_output({:high_card, 11}), do: "high card: Jack"
+  defp parse_output({:high_card, value}), do: "high card: #{value}"
+  defp parse_output(result), do: Atom.to_string(result) |> String.replace("_", " ")
 
 end

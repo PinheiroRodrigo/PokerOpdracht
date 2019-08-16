@@ -1,5 +1,23 @@
 defmodule Ranking do
+  @moduledoc """
 
+  This module is used to verify poker hand sets and rank between them.
+
+  """
+
+  @typedoc """
+    Structure for a poker hand.
+
+    A List containing tuples. Each tuple represent a card, where the first element
+    represents the card value, and the second represents the suit.
+
+  """
+  @type hand :: list({integer(), atom()})
+
+  @typedoc """
+    Result after verifying the winner between two poker hands.
+  """
+  @type winner :: {atom(), atom()} | {atom(), {atom(), integer()}}
 
   @doc """
   Verify the winner between two hands.
@@ -7,14 +25,14 @@ defmodule Ranking do
   ## Examples
 
     iex> Ranking.verify_winner(
-      {:black, [{2, :hearts}, {3, :hearts}, {5, :hearts}, {9, :hearts}, {13, :hearts}],
-      :white, [{2, :clubs}, {3, :hearts}, {4, :spades}, {8, :clubs}, {14, :hearts}]}
+      {[{2, :hearts}, {3, :hearts}, {5, :hearts}, {9, :hearts}, {13, :hearts}],
+       [{2, :clubs}, {3, :hearts}, {4, :spades}, {8, :clubs}, {14, :hearts}]}
      )
     {:black, :straight_flush}
 
   """
-  def verify_winner({:black, black, :white, white}), do: verify_winner(black, white)
-  def verify_winner(black, white) do
+  @spec verify_winner({hand, hand}) :: winner
+  def verify_winner({black, white}) do
     {b_set, b_points, b_hand} = verify_hand(black)
     {w_set, w_points, w_hand} = verify_hand(white)
     cond do

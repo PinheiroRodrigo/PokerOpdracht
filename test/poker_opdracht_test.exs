@@ -33,15 +33,15 @@ defmodule PokerOpdrachtTest do
     high_card = sets[:high_card]
 
 
-    assert Ranking.verify_winner(straight_flush, four_of_a_kind) == {:black, :straight_flush}
-    assert Ranking.verify_winner(four_of_a_kind, full_house) == {:black, :four_of_a_kind}
-    assert Ranking.verify_winner(full_house, flush) == {:black, :full_house}
-    assert Ranking.verify_winner(flush, straight) == {:black, :flush}
-    assert Ranking.verify_winner(straight, three_of_a_kind) == {:black, :straight}
-    assert Ranking.verify_winner(three_of_a_kind, two_pairs) == {:black, :three_of_a_kind}
-    assert Ranking.verify_winner(two_pairs, pair) == {:black, :two_pairs}
-    assert Ranking.verify_winner(pair, high_card) == {:black, :pair}
-    assert Ranking.verify_winner(high_card, high_card) == :tie
+    assert Ranking.verify_winner({straight_flush, four_of_a_kind}) == {:black, :straight_flush}
+    assert Ranking.verify_winner({four_of_a_kind, full_house}) == {:black, :four_of_a_kind}
+    assert Ranking.verify_winner({full_house, flush}) == {:black, :full_house}
+    assert Ranking.verify_winner({flush, straight}) == {:black, :flush}
+    assert Ranking.verify_winner({straight, three_of_a_kind}) == {:black, :straight}
+    assert Ranking.verify_winner({three_of_a_kind, two_pairs}) == {:black, :three_of_a_kind}
+    assert Ranking.verify_winner({two_pairs, pair}) == {:black, :two_pairs}
+    assert Ranking.verify_winner({pair, high_card}) == {:black, :pair}
+    assert Ranking.verify_winner({high_card, high_card}) == :tie
   end
 
   test "verify winner - betty examples" do
@@ -62,14 +62,14 @@ defmodule PokerOpdrachtTest do
     {black, white} = {sets[:high_card], sets[:high_card_lower]}
     {black2, white2} = {sets[:high_card], sets[:high_card]}
 
-    assert Ranking.verify_winner(black, white) == {:black, {:high_card, 5}}
-    assert Ranking.verify_winner(black2, white2) == :tie
+    assert Ranking.verify_winner({black, white}) == {:black, {:high_card, 5}}
+    assert Ranking.verify_winner({black2, white2}) == :tie
   end
 
   test "untie unique set", sets do
     {black, white} = {sets[:full_house], sets[:full_house_lower]}
 
-    assert Ranking.verify_winner(black, white) == {:black, {:high_card, 6}}
+    assert Ranking.verify_winner({black, white}) == {:black, {:high_card, 6}}
   end
 
   test "untie pairs", sets do
@@ -77,8 +77,8 @@ defmodule PokerOpdrachtTest do
     # two equal pairs, last white card has a lower value
     {black2, white2} = {sets[:two_pairs_lower], sets[:two_equal_pairs_lower]}
 
-    assert Ranking.verify_winner(black, white) == {:black, {:high_card, 8}}
-    assert Ranking.verify_winner(black2, white2) == {:black, {:high_card, 9}}
+    assert Ranking.verify_winner({black, white}) == {:black, {:high_card, 8}}
+    assert Ranking.verify_winner({black2, white2}) == {:black, {:high_card, 9}}
   end
 
   ## Validations
