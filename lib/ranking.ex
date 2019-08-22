@@ -25,10 +25,9 @@ defmodule Ranking do
   ## Examples
 
     iex> Ranking.verify_winner(
-      {[{2, :hearts}, {3, :hearts}, {5, :hearts}, {9, :hearts}, {13, :hearts}],
-       [{2, :clubs}, {3, :hearts}, {4, :spades}, {8, :clubs}, {14, :hearts}]}
-     )
-    {:black, :straight_flush}
+    ...>  {[{2, :hearts}, {3, :hearts}, {5, :hearts}, {9, :hearts}, {13, :hearts}],
+    ...>  [{2, :clubs}, {3, :hearts}, {4, :spades}, {8, :clubs}, {14, :hearts}]})
+    {:black, :flush}
 
   """
   @spec verify_winner({hand, hand}) :: winner
@@ -51,8 +50,8 @@ defmodule Ranking do
 
   ## Examples
 
-    iex> Ranking.verify_hand([{8, :clubs}, {8, :hearts}, {3, :spades}, {3, :diamonds}, {5, :hearts}]
-    {:two_pairs, 3, ["8C", "8H", "3S", "3D", "5H"]}
+    iex> Ranking.verify_hand([{8, :clubs}, {8, :hearts}, {3, :spades}, {3, :diamonds}, {5, :hearts}])
+    {:two_pairs, 3, [{8, :clubs}, {8, :hearts}, {3, :spades}, {3, :diamonds}, {5, :hearts}]}
 
   """
   def verify_hand(hand) do
